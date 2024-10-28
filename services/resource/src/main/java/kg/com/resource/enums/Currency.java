@@ -9,7 +9,6 @@ public enum Currency {
 	USD("USD"),
 	KGS("KGS"),
 	RUB("RUB");
-	
 	private final String value;
 	
 }
