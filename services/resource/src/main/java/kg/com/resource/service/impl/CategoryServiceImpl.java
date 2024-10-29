@@ -10,6 +10,7 @@ import kg.com.resource.service.CategoryService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -19,30 +20,54 @@ import java.util.List;
 public class CategoryServiceImpl implements CategoryService {
 	
 	private final CategoryRepository categoryRepository;
+	private final ResourceServiceImpl resourceRepository;
 	
 	@Override
 	public List<CategoryDto> findAll() {
-		return List.of();
+		return categoryRepository.findAll().stream()
+				.map(this :: mapToDTO)
+				.toList();
 	}
 	
 	@Override
 	public CategoryDto findById(Long id) {
-		return null;
+		return mapToDTO(categoryRepository
+				.findById(id)
+				.orElseThrow(() -> new EntityNotFoundException("Category with id " + id + " not found")));
 	}
 	
 	@Override
-	public CategoryDto save(CategoryCreateRequest category) {
-		return null;
+	@Transactional
+	public CategoryDto save(CategoryCreateRequest categoryRequest) {
+		Category category = Category.builder()
+				.name(categoryRequest.getName())
+				.parent(categoryRequest.getParentId() != null ? findByIdEntity(categoryRequest.getParentId()) : null)
+				.build();
+		
+		Category savedCategory = categoryRepository.save(category);
+		log.info("Category created with ID: {}", savedCategory.getId());
+		return mapToDTO(savedCategory);
 	}
 	
 	@Override
+	@Transactional
 	public CategoryDto update(Long id, CategoryDto categoryDTO) {
-		return null;
+		Category existingCategory = findByIdEntity(id);
+		
+		existingCategory.setName(categoryDTO.getName());
+		existingCategory.setParent(categoryDTO.getParentId() != null ? findByIdEntity(categoryDTO.getParentId()) : null);
+		
+		Category updatedCategory = categoryRepository.save(existingCategory);
+		log.info("Category updated with ID: {}", updatedCategory.getId());
+		return mapToDTO(updatedCategory);
 	}
 	
 	@Override
+	@Transactional
 	public void delete(Long id) {
-	
+		Category category = findByIdEntity(id);
+		categoryRepository.delete(category);
+		log.info("Category deleted with ID: {}", id);
 	}
 	
 	protected Category findByIdEntity(Long id) {
