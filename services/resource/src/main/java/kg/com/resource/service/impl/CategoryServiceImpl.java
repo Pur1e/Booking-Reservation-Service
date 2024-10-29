@@ -20,7 +20,7 @@ import java.util.List;
 public class CategoryServiceImpl implements CategoryService {
 	
 	private final CategoryRepository categoryRepository;
-	private final ResourceServiceImpl resourceRepository;
+	private final ResourceServiceImpl resourceService;
 	
 	@Override
 	public List<CategoryDto> findAll() {
