@@ -1,7 +1,10 @@
 package kg.com.resource.service.impl;
 
+import jakarta.validation.constraints.NotNull;
 import kg.com.resource.dto.RentalPriceDto;
 import kg.com.resource.dto.requests.RentalPriceCreateRequest;
+import kg.com.resource.model.RentalPrice;
+import kg.com.resource.model.Resource;
 import kg.com.resource.repository.RentalPriceRepository;
 import kg.com.resource.service.RentalPriceService;
 import lombok.RequiredArgsConstructor;
@@ -42,5 +45,28 @@ public class RentalPriceServiceImpl implements RentalPriceService {
 	@Override
 	public void delete(Long id) {
 	
+	}
+	
+	protected RentalPrice mapToEntity(@NotNull RentalPriceDto dto) {
+		Resource resource = resourceService.findByIdEntity(dto.getResourceId());
+		return RentalPrice.builder()
+				.id(dto.getId())
+				.rentType(dto.getRentType())
+				.price(dto.getPrice())
+				.currency(dto.getCurrency())
+				.resource(resource)
+				.build();
+	}
+	
+	protected RentalPriceDto mapToDTO(@NotNull RentalPrice rentalPrice) {
+		Long resourceId = rentalPrice.getResource().getId();
+		
+		return RentalPriceDto.builder()
+				.id(rentalPrice.getId())
+				.rentType(rentalPrice.getRentType())
+				.price(rentalPrice.getPrice())
+				.currency(rentalPrice.getCurrency())
+				.resourceId(resourceId)
+				.build();
 	}
 }

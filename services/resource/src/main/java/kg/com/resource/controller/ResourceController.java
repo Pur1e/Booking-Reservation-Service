@@ -16,7 +16,6 @@ public class ResourceController {
 	
 	private final ResourceService resourceService;
 	
-	
 	@GetMapping
 	public ResponseEntity<List<ResourceDto>> getAllResources() {
 		return ResponseEntity.ok(resourceService.findAll());
@@ -25,7 +24,6 @@ public class ResourceController {
 	@GetMapping("/{id}")
 	public ResponseEntity<ResourceDto> getResourceById(@PathVariable Long id) {
 		return ResponseEntity.ok(resourceService.findById(id));
-		
 	}
 	
 	@PostMapping

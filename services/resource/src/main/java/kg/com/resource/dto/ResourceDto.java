@@ -12,7 +12,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class ResourceDto {
-	private String id, ownerId;
+	private Long id, ownerId;
 	private String name, location, description, status;
 	private List<RentalPriceDto> rentalPriceDtoList;
 	private CategoryDto categoryDto;
