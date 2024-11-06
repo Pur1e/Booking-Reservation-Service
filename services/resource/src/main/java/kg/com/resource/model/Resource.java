@@ -5,6 +5,7 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.*;
 
+import java.math.BigDecimal;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
@@ -45,7 +46,11 @@ public class Resource {
 	@JoinColumn(name = "category_id")
 	private Category category;
 	
-	@OneToMany(mappedBy = "resource")
-	private Set<RentalPrice> rentalPrices = new LinkedHashSet<>();
+	@NotNull
+	@Column(name = "price", nullable = false, precision = 8, scale = 2)
+	private BigDecimal price;
 	
+	@Size(max = 3)
+	@Column(name = "currency", length = 3)
+	private String currency;
 }

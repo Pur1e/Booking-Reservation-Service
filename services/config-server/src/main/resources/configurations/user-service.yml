@@ -3,9 +3,10 @@ server:
 spring:
   datasource:
     driver-class-name: org.postgresql.Driver
-    url: jdbc:postgresql://localhost:3333/user
+    url: jdbc:postgresql://localhost:1001/postgres
     username: qwe
     password: qwe
+    db: qwe
   jpa:
     hibernate:
       ddl-auto: update

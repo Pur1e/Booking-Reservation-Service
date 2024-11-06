@@ -4,6 +4,7 @@ import kg.com.resource.dto.ResourceDto;
 import kg.com.resource.dto.requests.ResourceCreateRequest;
 import kg.com.resource.service.ResourceService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 

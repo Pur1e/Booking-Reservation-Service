@@ -1,9 +1,7 @@
 package kg.com.resource.service.impl;
 
 import jakarta.persistence.EntityNotFoundException;
-import jakarta.validation.constraints.NotNull;
 import kg.com.resource.dto.CategoryDto;
-import kg.com.resource.dto.RentalPriceDto;
 import kg.com.resource.dto.ResourceDto;
 import kg.com.resource.dto.requests.ResourceCreateRequest;
 import kg.com.resource.model.Category;
@@ -15,33 +13,14 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class ResourceServiceImpl implements ResourceService {
+public class ResourceServiceImpl extends AbstractCrudService<ResourceDto, Resource, ResourceCreateRequest>
+		implements ResourceService {
 	
 	private final ResourceRepository resourceRepository;
 	private final CategoryServiceImpl categoryService;
-	private final RentalPriceServiceImpl rentalPriceService;
-	
-	@Override
-	public List<ResourceDto> findAll() {
-		List<ResourceDto> resourceList = resourceRepository.findAll().stream()
-				.map(this::mapToDTO)
-				.toList();
-		log.info("Fetched {} resources", resourceList.size());
-		return resourceList;
-	}
-	
-	@Override
-	public ResourceDto findById(Long id) {
-		Resource resource = resourceRepository.findById(id)
-				.orElseThrow(() -> new EntityNotFoundException("Resource with ID " + id + " not found"));
-		log.info("Fetched resource with ID: {}", id);
-		return mapToDTO(resource);
-	}
 	
 	@Override
 	@Transactional
@@ -59,12 +38,9 @@ public class ResourceServiceImpl implements ResourceService {
 		
 		Resource savedResource = resourceRepository.save(resource);
 		
-		resourceRequest.getRentalPrices().forEach(
-				rentalPriceService :: save
-		);
 		
 		log.info("Created resource with ID: {}", savedResource.getId());
-		return mapToDTO(savedResource);
+		return toDto(savedResource);
 	}
 	
 	@Override
@@ -84,44 +60,12 @@ public class ResourceServiceImpl implements ResourceService {
 		
 		Resource updatedResource = resourceRepository.save(existingResource);
 		log.info("Updated resource with ID: {}", updatedResource.getId());
-		return mapToDTO(updatedResource);
+		return toDto(updatedResource);
 	}
 	
 	@Override
-	@Transactional
-	public void delete(Long id) {
-		Resource resource = resourceRepository.findById(id)
-				.orElseThrow(() -> new EntityNotFoundException("Resource with ID " + id + " not found"));
-		
-		resourceRepository.delete(resource);
-		log.info("Deleted resource with ID: {}", id);
-	}
-	
-	protected Resource findByIdEntity(@NotNull Long idEntity) {
-		return resourceRepository.findById(idEntity).orElse(null);
-	}
-	
-	protected Resource mapToEntity(@NotNull ResourceDto dto) {
-		Category c = categoryService.findByIdEntity(dto.getCategoryDto().getId());
-		return Resource.builder()
-				.id(dto.getId())
-				.name(dto.getName())
-				.description(dto.getDescription())
-				.location(dto.getLocation())
-				.status(dto.getStatus())
-				.ownerId(dto.getOwnerId())
-				.category(c)
-				.build();
-	}
-	
-	protected ResourceDto mapToDTO(@NotNull Resource resource) {
-		List<RentalPriceDto> rentalPriceList = resource
-				.getRentalPrices()
-				.stream()
-				.map(rentalPriceService :: mapToDTO)
-				.toList();
-		
-		CategoryDto cDto = categoryService.mapToDTO(resource.getCategory());
+	public ResourceDto toDto(Resource resource) {
+		CategoryDto cDto = categoryService.toDto(resource.getCategory());
 		
 		return ResourceDto.builder()
 				.id(resource.getId())
@@ -130,8 +74,26 @@ public class ResourceServiceImpl implements ResourceService {
 				.location(resource.getLocation())
 				.status(resource.getStatus())
 				.ownerId(resource.getOwnerId())
+				.price(resource.getPrice())
+				.currency(resource.getCurrency())
 				.categoryDto(cDto)
-				.rentalPriceDtoList(rentalPriceList)
 				.build();
 	}
+	
+	@Override
+	public Resource toEntity(ResourceDto dto) {
+		Category c = categoryService.findByIdEntity(dto.getCategoryDto().getId());
+		return Resource.builder()
+				.id(dto.getId())
+				.name(dto.getName())
+				.description(dto.getDescription())
+				.location(dto.getLocation())
+				.status(dto.getStatus())
+				.ownerId(dto.getOwnerId())
+				.currency(dto.getCurrency())
+				.price(dto.getPrice())
+				.category(c)
+				.build();
+	}
+	
 }

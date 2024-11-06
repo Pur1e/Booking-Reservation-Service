@@ -5,7 +5,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.List;
+import java.math.BigDecimal;
 
 @Builder
 @Data
@@ -13,7 +13,7 @@ import java.util.List;
 @NoArgsConstructor
 public class ResourceDto {
 	private Long id, ownerId;
-	private String name, location, description, status;
-	private List<RentalPriceDto> rentalPriceDtoList;
+	private String name, location, description, status, currency;
+	private BigDecimal price;
 	private CategoryDto categoryDto;
 }

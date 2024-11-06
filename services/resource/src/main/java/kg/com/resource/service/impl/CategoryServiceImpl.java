@@ -1,7 +1,6 @@
 package kg.com.resource.service.impl;
 
 import jakarta.persistence.EntityNotFoundException;
-import jakarta.validation.constraints.NotNull;
 import kg.com.resource.dto.CategoryDto;
 import kg.com.resource.dto.requests.CategoryCreateRequest;
 import kg.com.resource.model.Category;
@@ -10,34 +9,16 @@ import kg.com.resource.service.CategoryService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class CategoryServiceImpl implements CategoryService {
+public class CategoryServiceImpl extends AbstractCrudService<CategoryDto, Category, CategoryCreateRequest>
+		implements CategoryService {
 	
 	private final CategoryRepository categoryRepository;
-	private final ResourceServiceImpl resourceService;
 	
 	@Override
-	public List<CategoryDto> findAll() {
-		return categoryRepository.findAll().stream()
-				.map(this :: mapToDTO)
-				.toList();
-	}
-	
-	@Override
-	public CategoryDto findById(Long id) {
-		return mapToDTO(categoryRepository
-				.findById(id)
-				.orElseThrow(() -> new EntityNotFoundException("Category with id " + id + " not found")));
-	}
-	
-	@Override
-	@Transactional
 	public CategoryDto save(CategoryCreateRequest categoryRequest) {
 		Category category = Category.builder()
 				.name(categoryRequest.getName())
@@ -46,50 +27,45 @@ public class CategoryServiceImpl implements CategoryService {
 		
 		Category savedCategory = categoryRepository.save(category);
 		log.info("Category created with ID: {}", savedCategory.getId());
-		return mapToDTO(savedCategory);
+		return toDto(savedCategory);
 	}
 	
 	@Override
-	@Transactional
-	public CategoryDto update(Long id, CategoryDto categoryDTO) {
+	public CategoryDto update(Long id, CategoryDto dto) {
 		Category existingCategory = findByIdEntity(id);
 		
-		existingCategory.setName(categoryDTO.getName());
-		existingCategory.setParent(categoryDTO.getParentId() != null ? findByIdEntity(categoryDTO.getParentId()) : null);
+		existingCategory.setName(dto.getName());
+		existingCategory.setParent(dto.getParentId() != null ? findByIdEntity(dto.getParentId()) : null);
 		
 		Category updatedCategory = categoryRepository.save(existingCategory);
 		log.info("Category updated with ID: {}", updatedCategory.getId());
-		return mapToDTO(updatedCategory);
-	}
-	
-	@Override
-	@Transactional
-	public void delete(Long id) {
-		Category category = findByIdEntity(id);
-		categoryRepository.delete(category);
-		log.info("Category deleted with ID: {}", id);
+		return toDto(updatedCategory);
 	}
 	
 	protected Category findByIdEntity(Long id) {
-		return categoryRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Category Not Found"));
+		return categoryRepository.findById(id).orElseThrow(() ->
+				new EntityNotFoundException("Category Not Found"));
 	}
 	
-	protected Category mapToEntity(@NotNull CategoryDto dto) {
-		Category parent = categoryRepository.findById(dto.getParentId()).orElse(null);
-		return Category.builder()
-				.id(dto.getId())
-				.name(dto.getName())
-				.parent(parent)
-				.build();
-	}
-	
-	protected CategoryDto mapToDTO(@NotNull Category category) {
+	@Override
+	public CategoryDto toDto(Category category) {
 		Long parentId = category.getParent().getId();
 		
 		return CategoryDto.builder()
 				.id(category.getId())
 				.name(category.getName())
 				.parentId(parentId)
+				.build();
+	}
+	
+	@Override
+	public Category toEntity(CategoryDto dto) {
+		Category parent = categoryRepository.findById(dto.getParentId()).orElse(null);
+		
+		return Category.builder()
+				.id(dto.getId())
+				.name(dto.getName())
+				.parent(parent)
 				.build();
 	}
 }

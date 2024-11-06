@@ -1,32 +1,37 @@
 services:
-  postgresql:
-    container_name: ms_pg_sql
+
+  postgresql_user:
+    container_name: ms_pg_sql_user
     image: postgres:16.3
     environment:
       POSTGRES_USER: qwe
       POSTGRES_PASSWORD: qwe
-      PGDATA: /var/lib/data/postgres
+      POSTGRES_DB: qwe
+      PGDATA: /var/lib/data/postgres/user
     volumes:
-      - postgres:/var/lib/data/postgres
+      - postgres:/var/lib/data/postgres/user
     ports:
-      - "3333:5432"
+      - "1001:5432"
     networks:
       - microservices-net
     restart: unless-stopped
 
-  redis:
-    container_name: ms_redis
-    image: redis
+  postgresql_resource:
+    container_name: ms_pg_sql_resource
+    image: postgres:16.3
     environment:
-      REDIS_PASSWORD: qwe
-    command: ["redis-server", "--requirepass", "qwe"]
+      POSTGRES_USER: qwe
+      POSTGRES_PASSWORD: qwe
+      POSTGRES_DB: qwe
+      PGDATA: /var/lib/data/postgres/resource
     volumes:
-      - redis:/data
+      - postgres:/var/lib/data/postgres/resource
     ports:
-      - "6379:6379"
+      - "1002:5432"
     networks:
       - microservices-net
     restart: unless-stopped
+
 
 networks:
   microservices-net:
@@ -34,4 +39,3 @@ networks:
 
 volumes:
   postgres:
-  redis:
