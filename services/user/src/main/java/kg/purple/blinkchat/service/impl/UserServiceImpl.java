@@ -82,6 +82,7 @@ public class UserServiceImpl implements UserService {
 		User user = findUserByUsername(username);
 		
 		return UserDto.builder()
+				.id(user.getId())
 				.username(user.getUsername())
 				.name(user.getName())
 				.surname(user.getSurname())
@@ -90,6 +91,7 @@ public class UserServiceImpl implements UserService {
 	
 	@Override
 	@Modifying
+	@Transactional
 	public UserDto updateUserByUsername(String username, UserDto request) {
 		User user = findUserByUsername(username);
 		
@@ -111,6 +113,7 @@ public class UserServiceImpl implements UserService {
 	
 	@Override
 	@Modifying
+	@Transactional
 	public void deleteUserByUsername(String username) {
 		User user = findUserByUsername(username);
 		user.setEnabled(false);
@@ -122,6 +125,7 @@ public class UserServiceImpl implements UserService {
 		return userRepository.findAllByUsernameContainingIgnoreCase(username)
 				.stream()
 				.map(u -> UserDto.builder()
+						.id(u.getId())
 						.username(u.getUsername())
 						.surname(u.getSurname())
 						.name(u.getName())
