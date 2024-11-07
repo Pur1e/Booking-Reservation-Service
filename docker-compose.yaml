@@ -6,7 +6,6 @@ services:
     environment:
       POSTGRES_USER: qwe
       POSTGRES_PASSWORD: qwe
-      POSTGRES_DB: qwe
       PGDATA: /var/lib/data/postgres/user
     volumes:
       - postgres:/var/lib/data/postgres/user
@@ -22,7 +21,6 @@ services:
     environment:
       POSTGRES_USER: qwe
       POSTGRES_PASSWORD: qwe
-      POSTGRES_DB: qwe
       PGDATA: /var/lib/data/postgres/resource
     volumes:
       - postgres:/var/lib/data/postgres/resource
@@ -32,6 +30,20 @@ services:
       - microservices-net
     restart: unless-stopped
 
+  postgresql_booking:
+    container_name: ms_pg_sql_booking
+    image: postgres:16.3
+    environment:
+      POSTGRES_USER: qwe
+      POSTGRES_PASSWORD: qwe
+      PGDATA: /var/lib/data/postgres/booking
+    volumes:
+      - postgres:/var/lib/data/postgres/booking
+    ports:
+      - "1003:5432"
+    networks:
+      - microservices-net
+    restart: unless-stopped
 
 networks:
   microservices-net:

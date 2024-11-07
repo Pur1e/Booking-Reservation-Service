@@ -6,7 +6,6 @@ spring:
     url: jdbc:postgresql://localhost:1001/postgres
     username: qwe
     password: qwe
-    db: qwe
   jpa:
     hibernate:
       ddl-auto: update
