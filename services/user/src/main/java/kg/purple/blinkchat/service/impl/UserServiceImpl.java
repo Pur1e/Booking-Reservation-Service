@@ -81,12 +81,7 @@ public class UserServiceImpl implements UserService {
 	public UserDto getUserByUsername(String username) {
 		User user = findUserByUsername(username);
 		
-		return UserDto.builder()
-				.id(user.getId())
-				.username(user.getUsername())
-				.name(user.getName())
-				.surname(user.getSurname())
-				.build();
+		return toDto(user);
 	}
 	
 	@Override
@@ -104,11 +99,7 @@ public class UserServiceImpl implements UserService {
 		
 		userRepository.save(user);
 		
-		return UserDto.builder()
-				.username(user.getUsername())
-				.name(user.getName())
-				.surname(user.getSurname())
-				.build();
+		return toDto(user);
 	}
 	
 	@Override
@@ -124,17 +115,29 @@ public class UserServiceImpl implements UserService {
 	public List<UserDto> getUsersByUsername(String username) {
 		return userRepository.findAllByUsernameContainingIgnoreCase(username)
 				.stream()
-				.map(u -> UserDto.builder()
-						.id(u.getId())
-						.username(u.getUsername())
-						.surname(u.getSurname())
-						.name(u.getName())
-						.build())
+				.map(this :: toDto)
 				.toList();
+	}
+	
+	@Override
+	public UserDto getUserById(Long userId) {
+		User user = userRepository.findById(userId)
+				.orElseThrow(() -> new EntityNotFoundException("User not found with ID: " + userId));
+		
+		return toDto(user);
 	}
 	
 	private User findUserByUsername(String username) {
 		return userRepository.findByUsername(username)
 				.orElseThrow(() -> new EntityNotFoundException("User not found with username " + username));
+	}
+	
+	private UserDto toDto(User user) {
+		return UserDto.builder()
+				.id(user.getId())
+				.username(user.getUsername())
+				.name(user.getName())
+				.surname(user.getSurname())
+				.build();
 	}
 }

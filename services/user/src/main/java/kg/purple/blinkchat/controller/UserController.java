@@ -24,7 +24,7 @@ public class UserController {
 		return ResponseEntity.ok(user);
 	}
 	
-	@PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
+//	@PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
 	@PatchMapping("/{username}")
 	public ResponseEntity<UserDto> updateUser(@PathVariable String username, @RequestBody UserDto updatedUser) {
 		if (hasAccess(username)) {
@@ -34,7 +34,7 @@ public class UserController {
 		return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
 	}
 	
-	@PreAuthorize("hasAnyAuthority('ADMIN','USER')")
+//	@PreAuthorize("hasAnyAuthority('ADMIN','USER')")
 	@DeleteMapping("/{username}")
 	public ResponseEntity<?> deleteUser(@PathVariable String username) {
 		if (hasAccess(username)) {
@@ -49,6 +49,14 @@ public class UserController {
 		List<UserDto> users = userService.getUsersByUsername(username);
 		return ResponseEntity.ok(users);
 	}
+	
+	@GetMapping("/{userId}")
+	public ResponseEntity<UserDto> getUser(@PathVariable Long userId) {
+		UserDto user = userService.getUserById(userId);
+		return ResponseEntity.ok(user);
+	}
+	
+	
 	
 	private boolean hasAccess(String username) {
 		String currentUsername = SecurityContextHolder.getContext().getAuthentication().getName();
