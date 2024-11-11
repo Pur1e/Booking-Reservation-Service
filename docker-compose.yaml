@@ -1,49 +1,69 @@
 services:
 
-  postgresql_user:
-    container_name: ms_pg_sql_user
-    image: postgres:16.3
-    environment:
-      POSTGRES_USER: qwe
-      POSTGRES_PASSWORD: qwe
-      PGDATA: /var/lib/data/postgres/user
-    volumes:
-      - postgres:/var/lib/data/postgres/user
-    ports:
-      - "1001:5432"
-    networks:
-      - microservices-net
-    restart: unless-stopped
+  ## it's for separate docker containers for databases
+  ##but its takes too much RAM memory
+  #  postgresql_user:
+  #    container_name: ms_pg_sql_user
+  #    image: postgres:16.3
+  #    environment:
+  #      POSTGRES_USER: qwe
+  #      POSTGRES_PASSWORD: qwe
+  #      PGDATA: /var/lib/data/postgres/user
+  #    volumes:
+  #      - postgres_user:/var/lib/data/postgres/user
+  #    ports:
+  #      - "1001:5432"
+  #    networks:
+  #      - microservices-net
+  #    restart: unless-stopped
+  #
+  #  postgresql_resource:
+  #    container_name: ms_pg_sql_resource
+  #    image: postgres:16.3
+  #    environment:
+  #      POSTGRES_USER: qwe
+  #      POSTGRES_PASSWORD: qwe
+  #      PGDATA: /var/lib/data/postgres/resource
+  #    volumes:
+  #      - postgres_resource:/var/lib/data/postgres/resource
+  #    ports:
+  #      - "1002:5432"
+  #    networks:
+  #      - microservices-net
+  #    restart: unless-stopped
+  #
+  #  postgresql_booking:
+  #    container_name: ms_pg_sql_booking
+  #    image: postgres:16.3
+  #    environment:
+  #      POSTGRES_USER: qwe
+  #      POSTGRES_PASSWORD: qwe
+  #      PGDATA: /var/lib/data/postgres/booking
+  #    volumes:
+  #      - postgres_booking:/var/lib/data/postgres/booking
+  #    ports:
+  #      - "1003:5432"
+  #    networks:
+  #      - microservices-net
+  #    restart: unless-stopped
 
-  postgresql_resource:
-    container_name: ms_pg_sql_resource
-    image: postgres:16.3
-    environment:
-      POSTGRES_USER: qwe
-      POSTGRES_PASSWORD: qwe
-      PGDATA: /var/lib/data/postgres/resource
-    volumes:
-      - postgres:/var/lib/data/postgres/resource
-    ports:
-      - "1002:5432"
-    networks:
-      - microservices-net
-    restart: unless-stopped
-
+## it's for one db and separate schemas
   postgresql_booking:
-    container_name: ms_pg_sql_booking
+    container_name: ms_pg_sql_ALL_IN_ONE
     image: postgres:16.3
     environment:
       POSTGRES_USER: qwe
       POSTGRES_PASSWORD: qwe
-      PGDATA: /var/lib/data/postgres/booking
+      PGDATA: /var/lib/data/postgres/
     volumes:
-      - postgres:/var/lib/data/postgres/booking
+      - db-data:/var/lib/postgresql/data
+      - ./init-scripts:/docker-entrypoint-initdb.d
     ports:
-      - "1003:5432"
+      - "1000:5432"
     networks:
       - microservices-net
     restart: unless-stopped
+
 
   zookeeper:
     image: confluentinc/cp-zookeeper:latest
@@ -79,4 +99,7 @@ networks:
     driver: bridge
 
 volumes:
-  postgres:
+#  postgres_user:
+#  postgres_resource:
+#  postgres_booking:
+  db-data:
